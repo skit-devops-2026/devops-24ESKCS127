@@ -9,6 +9,7 @@ import { Home } from './pages/Home';
 import { Products } from './pages/Products';
 import { ProductDetail } from './pages/ProductDetail';
 import { Cart } from './pages/Cart';
+import { About } from './pages/About';
 
 // Helper component to scroll window to top on route navigation
 const ScrollToTop = () => {
@@ -34,6 +35,7 @@ export default function App() {
               <Route path="/products" element={<Products />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/about" element={<About />} />
             </Routes>
           </main>
           <Footer />

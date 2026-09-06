@@ -49,6 +49,14 @@ export const Navbar = () => {
             >
               All Products
             </Link>
+            <Link
+              to="/about"
+              className={`hover:text-indigo-600 transition-colors ${
+                isActive('/about') ? 'text-indigo-600 font-semibold' : ''
+              }`}
+            >
+              About
+            </Link>
           </nav>
 
           {/* Search Bar */}
@@ -119,6 +127,13 @@ export const Navbar = () => {
             className="block py-2 text-sm font-medium text-slate-700 hover:text-indigo-600"
           >
             All Products
+          </Link>
+          <Link
+            to="/about"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block py-2 text-sm font-medium text-slate-700 hover:text-indigo-600"
+          >
+            About
           </Link>
         </div>
       )}
