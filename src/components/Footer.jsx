@@ -17,6 +17,7 @@ export const Footer = () => {
         <div className="flex items-center gap-6 text-xs text-slate-400">
           <Link to="/" className="hover:text-white transition">Home</Link>
           <Link to="/products" className="hover:text-white transition">Products</Link>
+          <Link to="/about" className="hover:text-white transition">About</Link>
           <Link to="/cart" className="hover:text-white transition">Cart</Link>
         </div>
 
