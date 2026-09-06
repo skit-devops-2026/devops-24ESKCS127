@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Truck, ShieldCheck, Headphones } from 'lucide-react';
+import { ArrowRight, ShoppingBag, Truck, ShieldCheck, Headphones } from 'lucide-react';
 import { products, categories } from '../data/demo';
 import { ProductCard } from '../components/ProductCard';
 

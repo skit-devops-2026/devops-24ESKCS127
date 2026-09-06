@@ -34,35 +34,64 @@ export const CartProvider = ({ children }) => {
     setToastMessage({ msg, type, id: Date.now() });
   };
 
-  const addToCart = (product, quantity = 1) => {
+  const addToCart = (product, quantity = 1, color = null, size = null) => {
+    const itemColor = color || (product.colors && product.colors[0]) || 'Standard';
+    const itemSize = size || (product.sizes && product.sizes[0]) || 'Standard';
+
     setCartItems((prev) => {
-      const existingIndex = prev.findIndex((item) => item.product.id === product.id);
+      const existingIndex = prev.findIndex(
+        (item) =>
+          item.product.id === product.id &&
+          item.selectedColor === itemColor &&
+          item.selectedSize === itemSize
+      );
 
       if (existingIndex > -1) {
         const updated = [...prev];
         updated[existingIndex].quantity += quantity;
         return updated;
       } else {
-        return [...prev, { product, quantity }];
+        return [
+          ...prev,
+          {
+            product,
+            quantity,
+            selectedColor: itemColor,
+            selectedSize: itemSize,
+          },
+        ];
       }
     });
 
     showToast(`Added "${product.name}" to your cart!`);
   };
 
-  const removeFromCart = (productId) => {
-    setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
+  const removeFromCart = (productId, color, size) => {
+    setCartItems((prev) =>
+      prev.filter(
+        (item) =>
+          !(
+            item.product.id === productId &&
+            item.selectedColor === color &&
+            item.selectedSize === size
+          )
+      )
+    );
     showToast(`Item removed from cart.`, 'info');
   };
 
-  const updateQuantity = (productId, newQty) => {
+  const updateQuantity = (productId, color, size, newQty) => {
     if (newQty <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, color, size);
       return;
     }
     setCartItems((prev) =>
       prev.map((item) => {
-        if (item.product.id === productId) {
+        if (
+          item.product.id === productId &&
+          item.selectedColor === color &&
+          item.selectedSize === size
+        ) {
           return { ...item, quantity: newQty };
         }
         return item;
@@ -82,6 +111,12 @@ export const CartProvider = ({ children }) => {
     0
   );
 
+  const originalTotal = cartItems.reduce(
+    (sum, item) => sum + (item.product.originalPrice || item.product.price) * item.quantity,
+    0
+  );
+
+  const totalDiscount = originalTotal - subtotal;
   const deliveryFee = subtotal > 2000 || subtotal === 0 ? 0 : 149;
   const grandTotal = subtotal + deliveryFee;
 
@@ -91,6 +126,8 @@ export const CartProvider = ({ children }) => {
         cartItems,
         cartCount,
         subtotal,
+        originalTotal,
+        totalDiscount,
         deliveryFee,
         grandTotal,
         addToCart,

@@ -66,10 +66,10 @@ export const Cart = () => {
         {/* LEFT: CART ITEMS */}
         <div className="lg:col-span-2 space-y-3">
           {cartItems.map((item) => {
-            const { product, quantity } = item;
+            const { product, quantity, selectedColor, selectedSize } = item;
             return (
               <div
-                key={product.id}
+                key={`${product.id}-${selectedColor}-${selectedSize}`}
                 className="bg-white border border-slate-200 rounded-xl p-4 flex gap-4 items-center"
               >
                 {/* Thumbnail */}
@@ -103,7 +103,9 @@ export const Cart = () => {
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200">
                     <button
-                      onClick={() => updateQuantity(product.id, quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(product.id, selectedColor, selectedSize, quantity - 1)
+                      }
                       className="w-6 h-6 flex items-center justify-center rounded hover:bg-white text-slate-700"
                     >
                       <Minus className="w-3 h-3" />
@@ -112,7 +114,9 @@ export const Cart = () => {
                       {quantity}
                     </span>
                     <button
-                      onClick={() => updateQuantity(product.id, quantity + 1)}
+                      onClick={() =>
+                        updateQuantity(product.id, selectedColor, selectedSize, quantity + 1)
+                      }
                       className="w-6 h-6 flex items-center justify-center rounded hover:bg-white text-slate-700"
                     >
                       <Plus className="w-3 h-3" />
@@ -120,7 +124,7 @@ export const Cart = () => {
                   </div>
 
                   <button
-                    onClick={() => removeFromCart(product.id)}
+                    onClick={() => removeFromCart(product.id, selectedColor, selectedSize)}
                     className="p-1.5 text-slate-400 hover:text-rose-500 transition"
                     title="Remove item"
                   >
