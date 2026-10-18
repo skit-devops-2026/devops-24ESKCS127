@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "node server.js",
+    "test": "node --test tests/cart.test.js tests/app.test.js",
     "lint": "oxlint",
     "preview": "vite preview"
   },

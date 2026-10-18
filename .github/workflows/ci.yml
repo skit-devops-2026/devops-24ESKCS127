@@ -19,58 +19,60 @@ jobs:
         run: bash scripts/hygiene.sh
 
   # ---------------------------------------------------------------------------
-  # M3 — YOUR WORK STARTS HERE.
-  #
-  # Uncomment the job below and make it pass. Fill in the Makefile targets for
-  # your stack; do not change the target names, because this file calls them.
-  #
-  # The pipeline must genuinely fail when your tests fail. Do not add
-  # continue-on-error or "|| true" to make it green.
+  # M3 — CI Pipeline with Automated Tests
   # ---------------------------------------------------------------------------
+  build-and-test:
+    name: Build and test
+    needs: hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-  # build-and-test:
-  #   name: Build and test
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #
-  #     # Set up whichever runtime you need, for example:
-  #     # - uses: actions/setup-node@v4
-  #     #   with: { node-version: '20', cache: 'npm' }
-  #     # - uses: actions/setup-python@v5
-  #     #   with: { python-version: '3.12' }
-  #
-  #     - run: make install
-  #     - run: make test
-  #     - run: make build
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
-  # ---------------------------------------------------------------------------
-  # M4 — Containerization. Uncomment and complete when you get there.
-  # The push to the registry is what proves your build actually ran, so it is
-  # not optional.
-  # ---------------------------------------------------------------------------
+      - name: Install dependencies
+        run: make install
 
-  # docker:
-  #   name: Build and push images
-  #   needs: build-and-test
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: docker/login-action@v3
-  #       with:
-  #         registry: ghcr.io
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
-  #     - uses: docker/build-push-action@v6
-  #       with:
-  #         context: ./backend
-  #         push: true
-  #         tags: ghcr.io/${{ github.repository }}-backend:${{ github.sha }}
-  #     # ... and the same for ./frontend
+      - name: Run automated test suite
+        run: make test
+
+      - name: Build project
+        run: make build
 
   # ---------------------------------------------------------------------------
-  # M5 — Deployment. Add a deploy job here.
+  # M5 — Containerization: Build and push container image to ghcr.io
   # ---------------------------------------------------------------------------
+  docker:
+    name: Build and push container image
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set lower case image name
+        run: |
+          echo "IMAGE_TAG=ghcr.io/${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE_TAG }}:latest
+            ${{ env.IMAGE_TAG }}:${{ github.sha }}
